@@ -1,3 +1,22 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
+
+# Scala stuff
+*.class
+**/target/
+
+# IDE
+/.idea
+*.iml
+.metals/
+.bloop/
+.bsp/
+metals.sbt
+.vscode
+.history
+
+# MacOS
+.DS_Store
