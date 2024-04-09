@@ -4,18 +4,19 @@
 # GitHub Copilot persisted chat sessions
 /copilot/chatSessions
 
+# Scala stuff
 *.class
 **/target/
 
-.idea
+# IDE
+/.idea
 *.iml
 .metals/
 .bloop/
 .bsp/
-project/metals.sbt
-.vscode/
-project/project/metals.sbt
-project/project/project/
-.history/
+metals.sbt
+.vscode
+.history
 
+# MacOS
 .DS_Store
