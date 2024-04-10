@@ -25,6 +25,17 @@ object checkoutKataCode {
         acc.updated(item, acc(item) + 1)
       }
     }
+    def specialOffersCount(count: Int, rule: PricingRule): Int =
+      count / rule.amountToQualify
+
+    def remainingItemsCount(count: Int, rule: PricingRule): Int =
+      count % rule.amountToQualify
+
+    def specialOffersPrice(count: Int, rule: PricingRule): Int =
+      specialOffersCount(count, rule) * rule.specialOfferPrice
+
+    def remainingItemsPrice(count: Int, rule: PricingRule): Int =
+      remainingItemsCount(count, rule) * rule.unitPrice
 
 
 
@@ -32,16 +43,8 @@ object checkoutKataCode {
       itemsMap.foldLeft(0) { (totalPrice, itemAndCount) =>
         val (item, count) = itemAndCount
         val rule: PricingRule = pricingRules.getOrElse(item, PricingRule(0, 1, 0)) // makes things a bit more readable, and following convention.
-        // I'd try and split out the below vals into methods,
-        // this would give you the opportunity to test each step individually,
-        // which would make debugging easier, and give you better test coverage.
-        // This is quite a simple program so debugging wouldn't be an issue, but it's good
-        // to get into the habit for when things get more complex!
-        val specialOffersCount = count / rule.amountToQualify // keeps the names the same, before there were 2 different names for the same thing.
-        val remainingItemsCount = count % rule.amountToQualify
-        val specialOffersPrice = specialOffersCount * rule.specialOfferPrice
-        val remainingItemsPrice = remainingItemsCount * rule.unitPrice
-        totalPrice + specialOffersPrice + remainingItemsPrice
+
+        totalPrice + specialOffersPrice(count, rule) + remainingItemsPrice(count, rule)
       }
     }
   }
