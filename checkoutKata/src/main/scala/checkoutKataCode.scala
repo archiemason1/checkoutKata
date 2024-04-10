@@ -15,8 +15,6 @@
 //  rules each time we start handling a checkout transaction.
 //  We expect to be able to run your solution as a command line application.
 
-import checkoutKataCode.PricingRule
-
 object checkoutKataCode {
   case class PricingRule(unitPrice: Int, amountToQualify: Int, specialOfferPrice: Int)
 
@@ -27,19 +25,30 @@ object checkoutKataCode {
       }
     }
 
+    def calculateSpecialOffersCount(count:Int, rule: PricingRule): Int = {
+      count / rule.amountToQualify
+    }
+
+    def calculateRemainingItemsCount(count: Int, rule: PricingRule): Int = {
+      count % rule.amountToQualify
+    }
+
+    def calculateSpecialOffersPrice(count: Int, rule: PricingRule): Int = {
+      calculateSpecialOffersCount(count, rule) * rule.specialOfferPrice
+    }
+
+    def calculateRemainingItemsPrice(count: Int, rule: PricingRule): Int = {
+      calculateRemainingItemsCount(count, rule) * rule.unitPrice
+    }
+
     def calculateTotalPrice(itemsMap:  Map[Char, Int]): Int = {
       itemsMap.foldLeft(0) { (totalPrice, itemAndCount) =>
         val (item, count) = itemAndCount
-        val rule: PricingRule = pricingRules.getOrElse(item, PricingRule(0, 1, 0)) // makes things a bit more readable, and following convention.
-        // I'd try and split out the below vals into methods,
-        // this would give you the opportunity to test each step individually,
-        // which would make debugging easier, and give you better test coverage.
-        // This is quite a simple program so debugging wouldn't be an issue, but it's good
-        // to get into the habit for when things get more complex!
-        val specialOffersCount = count / rule.amountToQualify // keeps the names the same, before there were 2 different names for the same thing.
-        val remainingItemsCount = count % rule.amountToQualify
-        val specialOffersPrice = specialOffersCount * rule.specialOfferPrice
-        val remainingItemsPrice = remainingItemsCount * rule.unitPrice
+        val rule: PricingRule = pricingRules.getOrElse(item, PricingRule(0, 1, 0))
+        val specialOffersCount = calculateSpecialOffersCount(count, rule)
+        val remainingItemsCount = calculateRemainingItemsCount(count, rule)
+        val specialOffersPrice = calculateSpecialOffersPrice(count, rule)
+        val remainingItemsPrice = calculateRemainingItemsPrice(count, rule)
         totalPrice + specialOffersPrice + remainingItemsPrice
       }
     }
