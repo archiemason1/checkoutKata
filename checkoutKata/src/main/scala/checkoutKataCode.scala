@@ -27,8 +27,6 @@ object checkoutKataCode {
       }
     }
 
-
-
     def calculateTotalPrice(itemsMap:  Map[Char, Int]): Int = {
       itemsMap.foldLeft(0) { (totalPrice, itemAndCount) =>
         val (item, count) = itemAndCount
