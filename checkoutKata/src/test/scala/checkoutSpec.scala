@@ -3,7 +3,7 @@ import checkoutKataCode._
 class CheckoutSpec extends AnyFunSuite {
   // these vals could be reused for other potential tests
   // so may as well put them in scope to all tests, not defined inside one.
-  val pricingRules = Map(
+  val pricingRules: Map[Char, PricingRule] = Map(
     'a' -> PricingRule(50, 3, 130),
     'b' -> PricingRule(30, 2, 45),
     'c' -> PricingRule(20, 1, 20),

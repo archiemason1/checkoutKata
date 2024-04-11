@@ -20,11 +20,13 @@ object checkoutKataCode {
   case class PricingRule(unitPrice: Int, amountToQualify: Int, specialOfferPrice: Int)
 
   class Checkout(pricingRules: Map[Char, PricingRule]) {
+
     def countItemsToMap(items: List[Char]): Map[Char, Int] = {
       items.foldLeft(Map[Char, Int]().withDefaultValue(0)) { (acc, item) =>
         acc.updated(item, acc(item) + 1)
       }
     }
+
     def specialOffersCount(count: Int, rule: PricingRule): Int =
       count / rule.amountToQualify
 
@@ -37,14 +39,19 @@ object checkoutKataCode {
     def remainingItemsPrice(count: Int, rule: PricingRule): Int =
       remainingItemsCount(count, rule) * rule.unitPrice
 
+    def pricingRule(item: Char): PricingRule =
+      pricingRules.getOrElse(item, PricingRule(0, 1, 0))
 
-
-    def calculateTotalPrice(itemsMap:  Map[Char, Int]): Int = {
+    def calculateTotalPrice(itemsMap: Map[Char, Int]): Int = {
       itemsMap.foldLeft(0) { (totalPrice, itemAndCount) =>
         val (item, count) = itemAndCount
-        val rule: PricingRule = pricingRules.getOrElse(item, PricingRule(0, 1, 0)) // makes things a bit more readable, and following convention.
-
-        totalPrice + specialOffersPrice(count, rule) + remainingItemsPrice(count, rule)
+        val rule: PricingRule = pricingRule(item)
+        if (rule.unitPrice == 0) {
+          println(s"Item $item not recognised")
+          rule.unitPrice
+        }
+        else
+          totalPrice + specialOffersPrice(count, rule) + remainingItemsPrice(count, rule)
       }
     }
   }
