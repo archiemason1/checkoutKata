@@ -15,6 +15,8 @@
 //  rules each time we start handling a checkout transaction.
 //  We expect to be able to run your solution as a command line application.
 
+import scala.io.StdIn
+
 object checkoutKataCode {
   case class PricingRule(unitPrice: Int, amountToQualify: Int, specialOfferPrice: Int)
 
@@ -25,7 +27,7 @@ object checkoutKataCode {
       }
     }
 
-    def calculateSpecialOffersCount(count:Int, rule: PricingRule): Int = {
+    def calculateSpecialOffersCount(count: Int, rule: PricingRule): Int = {
       count / rule.amountToQualify
     }
 
@@ -33,25 +35,30 @@ object checkoutKataCode {
       count % rule.amountToQualify
     }
 
-    def calculateSpecialOffersPrice(count: Int, rule: PricingRule): Int = {
+    def specialOffersPrice(count: Int, rule: PricingRule): Int = {
       calculateSpecialOffersCount(count, rule) * rule.specialOfferPrice
     }
 
-    def calculateRemainingItemsPrice(count: Int, rule: PricingRule): Int = {
+    def remainingItemsPrice(count: Int, rule: PricingRule): Int = {
       calculateRemainingItemsCount(count, rule) * rule.unitPrice
     }
 
-    def calculateTotalPrice(itemsMap:  Map[Char, Int]): Int = {
+    def pricingRule(item: Char): PricingRule =
+      pricingRules.getOrElse(item, PricingRule(0, 1, 0))
+
+    def logError(nonItem: Char): Unit = println(s"Item $nonItem not recognised")
+
+    def calculateTotalPrice(itemsMap: Map[Char, Int]): Int = {
       itemsMap.foldLeft(0) { (totalPrice, itemAndCount) =>
         val (item, count) = itemAndCount
-        val rule: PricingRule = pricingRules.getOrElse(item, PricingRule(0, 1, 0))
-        val specialOffersCount = calculateSpecialOffersCount(count, rule)
-        val remainingItemsCount = calculateRemainingItemsCount(count, rule)
-        val specialOffersPrice = calculateSpecialOffersPrice(count, rule)
-        val remainingItemsPrice = calculateRemainingItemsPrice(count, rule)
-        totalPrice + specialOffersPrice + remainingItemsPrice
+        val rule: PricingRule = pricingRule(item)
+        if (rule.unitPrice == 0) {
+          logError(item)
+          totalPrice
+        } else {
+          totalPrice + specialOffersPrice(count, rule) + remainingItemsPrice(count, rule)
+        }
       }
     }
   }
 }
-
