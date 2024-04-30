@@ -10,39 +10,43 @@ object Main extends App {
       defaultPricingRules
     } else {
       val rulesStr = args(0).split(",")
-      val pricingRules = rulesStr.flatMap(parseRule).toMap
-
-      if (pricingRules.isEmpty) {
+      val parsedRules = rulesStr.flatMap(parseRule(_, defaultPricingRules))
+      val mergedRules = defaultPricingRules ++ parsedRules.toMap
+      if (mergedRules.isEmpty) {
         println("No valid pricing rules provided. Using default rules.")
         defaultPricingRules
       } else {
-        pricingRules
+        mergedRules
       }
     }
   }
 
-  def parseRule(ruleStr: String): Option[(Char, PricingRule)] = {
+  def parseRule(ruleStr: String, existingRules: Map[Char, PricingRule]): Option[(Char, PricingRule)] = {
     val ruleParams = ruleStr.trim.split("\\s+")
     if (ruleParams.length != 4) {
       printInvalidFormatMessage(ruleStr)
       None
     } else {
-      try {
-        createPricingRule(ruleParams)
-      } catch {
-        case _: NumberFormatException =>
-          printInvalidFormatMessage(ruleStr)
-          None
+      createPricingRule(ruleParams) match {
+        case Some(newRule) =>
+          val item = newRule._1
+          val updatedRules = existingRules + newRule
+          Some(item -> updatedRules.getOrElse(item, defaultPricingRules(item)))
+        case None => None
       }
     }
   }
 
   def createPricingRule(ruleParams: Array[String]): Option[(Char, PricingRule)] = {
-    val item = ruleParams(0).charAt(0)
-    val unitPrice = ruleParams(1).toInt
-    val amountToQualify = ruleParams(2).toInt
-    val specialOfferPrice = ruleParams(3).toInt
-    Some(item -> PricingRule(unitPrice, amountToQualify, specialOfferPrice))
+    try {
+      val item = ruleParams(0).charAt(0)
+      val unitPrice = ruleParams(1).toInt
+      val amountToQualify = ruleParams(2).toInt
+      val specialOfferPrice = ruleParams(3).toInt
+      Some(item -> PricingRule(unitPrice, amountToQualify, specialOfferPrice))
+    } catch {
+      case _: NumberFormatException => None
+    }
   }
 
   def printInvalidFormatMessage(ruleStr: String): Unit = {
