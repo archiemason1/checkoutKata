@@ -40,20 +40,30 @@ object Main extends App {
   def createPricingRule(ruleParams: Array[String]): Option[(Char, PricingRule)] = {
     try {
       val item = ruleParams(0).charAt(0)
-      val unitPrice = ruleParams(1).toInt
-      val amountToQualify = ruleParams(2).toInt
-      val specialOfferPrice = ruleParams(3).toInt
-      Some(item -> PricingRule(unitPrice, amountToQualify, specialOfferPrice))
+      if (!item.isLetter) {
+        println("Invalid item name. The first argument should be a letter.")
+        None
+      } else {
+        val unitPrice = ruleParams(1).toInt
+        val amountToQualify = ruleParams(2).toInt
+        val specialOfferPrice = ruleParams(3).toInt
+        Some(item -> PricingRule(unitPrice, amountToQualify, specialOfferPrice))
+      }
     } catch {
-      case _: NumberFormatException => None
+      case _: NumberFormatException =>
+        println("Invalid number format. Price, amount, and special offer price must be integers.")
+        None
+      case _: IndexOutOfBoundsException =>
+        println("Invalid argument count. Expected format: <item> <price> <amount for specialPrice> <specialPrice>")
+        None
     }
   }
 
   def printInvalidFormatMessage(ruleStr: String): Unit = {
     println(
-      s"""Illegal pricing rule format: $ruleStr. Skipping. Try inputting the pricing rules
-         |in the format \"a 30 2 55, b...\" where a -> item, 30 -> single price of £0.30
-         |2 -> amount to qualify special price, 55 -> special price of £0.55 for 2 of the item")
+      s"""Invalid pricing rule format: $ruleStr. Expected format:
+         |<item> <price> <amount for specialPrice> <specialPrice>
+         |e.g run "a 20 2 35" item -> a, price -> £0.20, 2 for -> £0.35
          |""".stripMargin)
   }
 
@@ -84,11 +94,13 @@ object Main extends App {
     if (input.isEmpty) {
       println("No items provided.")
     } else {
-      val items = input.mkString("").toList
+      val items = input.mkString("")
+      val itemsList = items.toList
       val checkout = new Checkout(pricingRules)
-      val itemsMap = checkout.countItemsToMap(items)
+      val validItems = items.filter(pricingRules.contains)
+      val itemsMap = checkout.countItemsToMap(itemsList)
       val totalPrice = checkout.calculateTotalPrice(itemsMap)
-      println(s"Total price for items ${input.mkString("")}: ${penniesToPoundsAndPennies(totalPrice)}")
+      println(s"Total price for items ${validItems}: ${penniesToPoundsAndPennies(totalPrice)}")
     }
   }
 
