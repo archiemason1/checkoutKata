@@ -15,8 +15,6 @@
 //  rules each time we start handling a checkout transaction.
 //  We expect to be able to run your solution as a command line application.
 
-import scala.io.StdIn
-
 object checkoutKataCode {
   case class PricingRule(unitPrice: Int, amountToQualify: Int, specialOfferPrice: Int)
 
@@ -60,5 +58,6 @@ object checkoutKataCode {
         }
       }
     }
+
   }
 }
